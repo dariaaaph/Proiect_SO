@@ -1,0 +1,2 @@
+[Thu Apr 10 22:49:45 2025] ADD: Added treasure ID: 1, Username: aaa, Value: 22
+[Thu Apr 10 22:49:50 2025] LIST: Listed 1 treasures

@@ -1,0 +1,5 @@
+[Thu Apr 10 22:47:58 2025] ADD: Added treasure ID: 1, Username: usr, Value: 11
+[Thu Apr 10 22:48:01 2025] LIST: Listed 1 treasures
+[Thu Apr 10 22:48:16 2025] ADD: Added treasure ID: 2, Username: aaaaaa, Value: 33
+[Thu Apr 10 22:48:24 2025] REMOVE: Removed treasure ID: 1. Remaining count: 1
+[Thu Apr 10 22:48:27 2025] LIST: Listed 1 treasures
