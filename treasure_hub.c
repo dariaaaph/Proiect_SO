@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <ctype.h>
 
 #define MAX_COMMAND 256
 #define MAX_HUNT_ID 512
@@ -39,7 +40,11 @@ void handle_sigusr1(int signum)
         char buffer[1024];
         while (fgets(buffer, sizeof(buffer), response_file))
         {
-            printf("%s", buffer);
+            // Only print if it's not a debug message
+            if (strncmp(buffer, "Debug:", 6) != 0)
+            {
+                printf("%s", buffer);
+            }
         }
         fclose(response_file);
     }
@@ -121,6 +126,18 @@ void stop_monitor()
     }
 }
 
+void display_commands()
+{
+    printf("\nAvailable commands:\n");
+    printf("  start_monitor - Start the monitor process\n");
+    printf("  stop_monitor - Stop the monitor process\n");
+    printf("  list_hunts - List all available hunts\n");
+    printf("  list_treasures - List all treasures in a hunt\n");
+    printf("  view_treasure - View a specific treasure\n");
+    printf("  exit - Exit the program\n");
+    printf("\nEnter command: ");
+}
+
 int main()
 {
     // Set up signal handlers
@@ -145,9 +162,11 @@ int main()
     char hunt_id[MAX_HUNT_ID];
     int treasure_id;
 
+    printf("Welcome to Treasure Hub!\n");
+    display_commands();
+
     while (1)
     {
-        printf("> ");
         if (fgets(command, sizeof(command), stdin) == NULL)
         {
             break;
@@ -159,10 +178,14 @@ int main()
         if (strcmp(command, "start_monitor") == 0)
         {
             start_monitor();
+            display_commands();
         }
         else if (strcmp(command, "list_hunts") == 0)
         {
             send_command("list_hunts");
+            // Wait for response before showing commands
+            usleep(100000); // Small delay to ensure response is processed
+            display_commands();
         }
         else if (strcmp(command, "list_treasures") == 0)
         {
@@ -170,9 +193,20 @@ int main()
             if (fgets(hunt_id, sizeof(hunt_id), stdin))
             {
                 hunt_id[strcspn(hunt_id, "\n")] = 0;
+                // Remove any leading/trailing spaces
+                char *start = hunt_id;
+                while (*start && isspace(*start))
+                    start++;
+                char *end = start + strlen(start) - 1;
+                while (end > start && isspace(*end))
+                    *end-- = '\0';
+
                 char full_command[MAX_COMMAND + MAX_HUNT_ID];
-                snprintf(full_command, sizeof(full_command), "list_treasures %s", hunt_id);
+                snprintf(full_command, sizeof(full_command), "list_treasures %s", start);
                 send_command(full_command);
+                // Wait for response before showing commands
+                usleep(100000); // Small delay to ensure response is processed
+                display_commands();
             }
         }
         else if (strcmp(command, "view_treasure") == 0)
@@ -187,21 +221,26 @@ int main()
                     char full_command[MAX_COMMAND + MAX_HUNT_ID + 20];
                     snprintf(full_command, sizeof(full_command), "view_treasure %s %d", hunt_id, treasure_id);
                     send_command(full_command);
+                    // Wait for response before showing commands
+                    usleep(100000); // Small delay to ensure response is processed
                 }
                 // Clear input buffer
                 while (getchar() != '\n')
                     ;
             }
+            display_commands();
         }
         else if (strcmp(command, "stop_monitor") == 0)
         {
             stop_monitor();
+            display_commands();
         }
         else if (strcmp(command, "exit") == 0)
         {
             if (monitor_running)
             {
                 printf("Error: Monitor is still running. Please stop it first.\n");
+                display_commands();
             }
             else
             {
@@ -211,6 +250,7 @@ int main()
         else
         {
             printf("Unknown command\n");
+            display_commands();
         }
     }
 
