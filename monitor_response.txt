@@ -1,3 +1,0 @@
-Available hunts:
-Hunt 1: 1 treasures
-Hunt 2: 0 treasures
